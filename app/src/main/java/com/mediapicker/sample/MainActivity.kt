@@ -1,9 +1,11 @@
 package com.mediapicker.sample
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.mediapicker.gallery.Gallery
 import com.mediapicker.gallery.GalleryConfig
@@ -15,7 +17,6 @@ import com.mediapicker.gallery.domain.entity.Rule
 import com.mediapicker.gallery.domain.entity.Validation
 import com.mediapicker.gallery.presentation.fragments.HomeFragment
 import com.mediapicker.gallery.presentation.utils.DefaultPage
-import com.mediapicker.gallery.presentation.utils.PermissionRequestWrapper
 import com.mediapicker.gallery.presentation.viewmodels.VideoFile
 import com.mediapicker.sample.databinding.ActivityMainBinding
 import java.io.File
@@ -25,6 +26,16 @@ private const val REQUEST_VIDEO_CAPTURE: Int = 1000
 class MainActivity : AppCompatActivity() {
 
     private var fragment: HomeFragment? = null
+
+    private var videoCaptureLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val videoUri: Uri? = result.data?.data
+            fragment?.reloadMedia()
+        }
+    }
+
     private val activityMainBinding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -45,7 +56,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpGallery() {
         val galleryConfig = GalleryConfig.GalleryConfigBuilder(
-            applicationContext,
             BuildConfig.APPLICATION_ID + ".provider",
             MyClientGalleryCommunicator()
         )
@@ -64,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val transaction = supportFragmentManager.beginTransaction()
             val photos = SelectedItemHolder.listOfSelectedPhotos
-            fragment = DemoHomeFragment.getInstance(
+            fragment = HomeFragment.getInstance(
                 photos,
                 SelectedItemHolder.listOfSelectedVideos,
                 defaultPageType = DefaultPage.PhotoPage
@@ -149,10 +159,10 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Permission denied :(", Toast.LENGTH_LONG).show()
         }
 
-        override fun onShowPermissionRationale(permissionRequest: PermissionRequestWrapper) {
-            Toast.makeText(applicationContext, "Permission show rationale :|", Toast.LENGTH_LONG)
-                .show()
-        }
+//        override fun onShowPermissionRationale(permissionRequest: PermissionRequestWrapper) {
+//            Toast.makeText(applicationContext, "Permission show rationale :|", Toast.LENGTH_LONG)
+//                .show()
+//        }
 
         override fun onStepValidate(isValid: Boolean) {
         }
@@ -160,19 +170,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun dispatchTakeVideoIntent() {
-        Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
-            takeVideoIntent.resolveActivity(packageManager)?.also {
-                startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            Toast.makeText(baseContext, "Recorded ", Toast.LENGTH_LONG).show()
-            fragment?.reloadMedia()
-        }
+        val videoIntent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        videoCaptureLauncher.launch(videoIntent)
     }
 
 }

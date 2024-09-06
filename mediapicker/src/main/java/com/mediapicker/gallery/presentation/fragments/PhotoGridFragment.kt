@@ -8,8 +8,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
 import com.mediapicker.gallery.Gallery
 import com.mediapicker.gallery.R
 import com.mediapicker.gallery.domain.entity.PhotoFile
@@ -17,10 +19,8 @@ import com.mediapicker.gallery.presentation.activity.FolderViewActivity
 import com.mediapicker.gallery.presentation.adapters.IGalleryItemClickListener
 import com.mediapicker.gallery.presentation.adapters.SelectPhotoImageAdapter
 import com.mediapicker.gallery.presentation.utils.Constants.EXTRA_SELECTED_PHOTO
-import com.mediapicker.gallery.presentation.utils.Constants.PHOTO_SELECTION_REQUEST_CODE
 import com.mediapicker.gallery.presentation.utils.FileUtils
 import com.mediapicker.gallery.presentation.utils.ValidatePhotos
-import com.mediapicker.gallery.presentation.utils.getFragmentScopedViewModel
 import com.mediapicker.gallery.presentation.viewmodels.LoadPhotoViewModel
 import java.io.Serializable
 
@@ -59,9 +59,10 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
         return@lazy i
     }
 
-
     private val loadPhotoViewModel: LoadPhotoViewModel by lazy {
-        getFragmentScopedViewModel { LoadPhotoViewModel(Gallery.galleryConfig) }
+        ViewModelProvider(this)[LoadPhotoViewModel::class.java].apply {
+            galleryConfig = Gallery.galleryConfig
+        }
     }
 
     private val galleryItemAdapter: SelectPhotoImageAdapter by lazy {
@@ -72,6 +73,33 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
             true
         )
     }
+
+    private var photoSelectionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val finalSelectionFromFolders =
+                    data?.getSerializableExtra(EXTRA_SELECTED_PHOTO) as? LinkedHashSet<PhotoFile>
+                finalSelectionFromFolders?.let {
+                    setSelectedFromFolderAndNotify(it)
+                }
+            }
+        }
+
+    // Initialize the ActivityResultLauncher for taking a photo
+    private var takePhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                if (lastRequestFileToSavePath.isNotEmpty()) {
+                    insertIntoGallery()
+                }
+                // To avoid preselect issue during camera photo click
+                // addItem(getPhoto(lastRequestFileToSavePath))
+                loadPhotoViewModel.loadMedia(this)
+            } else {
+                isExpectingNewPhoto = false
+            }
+        }
 
     override fun getScreenTitle() = getString(R.string.oss_title_tab_photo)
 
@@ -102,7 +130,10 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
         override fun onFolderItemClick() {
             //trackingService.postingFolderSelect()
             bridgeViewModel.onFolderSelect()
-            FolderViewActivity.startActivityForResult(this@PhotoGridFragment, currentSelectedPhotos)
+            val intent = Intent(requireContext(), FolderViewActivity::class.java).apply {
+                putExtra(EXTRA_SELECTED_PHOTO, currentSelectedPhotos)
+            }
+            photoSelectionLauncher.launch(intent)
         }
 
         override fun onCameraIconClick() {
@@ -136,7 +167,7 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
 
         val chooserIntent = Intent.createChooser(pickIntent, "Capture new Photo")
         pickIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivityForResult(chooserIntent, TAKING_PHOTO)
+        takePhotoLauncher.launch(chooserIntent)
     }
 
 
@@ -264,27 +295,6 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
     }
 
     override fun shouldHideToolBar() = true
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == PHOTO_SELECTION_REQUEST_CODE) run {
-            val finalSelectionFromFolders: LinkedHashSet<*> =
-                data?.getSerializableExtra(EXTRA_SELECTED_PHOTO) as LinkedHashSet<*>
-            val photoFileSet: LinkedHashSet<PhotoFile> =
-                LinkedHashSet(finalSelectionFromFolders.filterIsInstance<PhotoFile>())
-            setSelectedFromFolderAndNotify(photoFileSet)
-        } else if (requestCode == TAKING_PHOTO) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (lastRequestFileToSavePath.isNotEmpty()) {
-                    insertIntoGallery()
-                }
-                addItem(getPhoto(lastRequestFileToSavePath))
-                loadPhotoViewModel.loadMedia(this)
-            } else {
-                isExpectingNewPhoto = false
-            }
-        }
-    }
 
     private fun getPhoto(path: String): PhotoFile {
         return PhotoFile.Builder()

@@ -1,17 +1,16 @@
 package com.mediapicker.gallery.presentation.fragments
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.LinearLayout
-import androidx.appcompat.widget.AppCompatButton
-import androidx.viewpager.widget.ViewPager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
 import com.mediapicker.gallery.Gallery
 import com.mediapicker.gallery.GalleryConfig
 import com.mediapicker.gallery.R
@@ -26,16 +25,13 @@ import com.mediapicker.gallery.presentation.adapters.PagerAdapter
 import com.mediapicker.gallery.presentation.carousalview.CarousalActionListener
 import com.mediapicker.gallery.presentation.carousalview.MediaGalleryView
 import com.mediapicker.gallery.presentation.utils.DefaultPage
-import com.mediapicker.gallery.presentation.utils.PermissionRequestWrapper
+import com.mediapicker.gallery.presentation.utils.PermissionsUtil
 import com.mediapicker.gallery.presentation.utils.getActivityScopedViewModel
 import com.mediapicker.gallery.presentation.utils.getFragmentScopedViewModel
 import com.mediapicker.gallery.presentation.viewmodels.BridgeViewModel
 import com.mediapicker.gallery.presentation.viewmodels.HomeViewModel
 import com.mediapicker.gallery.presentation.viewmodels.VideoFile
 import com.mediapicker.gallery.utils.SnackbarUtils
-import permissions.dispatcher.PermissionRequest
-import permissions.dispatcher.ktx.PermissionsRequester
-import permissions.dispatcher.ktx.constructPermissionsRequest
 import java.io.Serializable
 
 private const val PHOTO_PREVIEW = 43475
@@ -43,11 +39,23 @@ private const val PHOTO_PREVIEW = 43475
 open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     MediaGalleryView.OnGalleryItemClickListener {
 
-
-    private lateinit var mediaGalleryView: MediaGalleryView
-    private lateinit var actionButton: AppCompatButton
-    private lateinit var viewPager: ViewPager
-    private lateinit var tabLayout: TabLayout
+    private var permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+            PermissionsUtil.handlePermissionsResult(
+                requireActivity(),
+                granted,
+                onAllPermissionsGranted = { checkPermissions() },
+                onPermissionDenied = { onPermissionDenied() }
+            )
+        }
+    private var photoPreviewLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val index = data?.extras?.getInt("gallery_media_index", 0) ?: 0
+                ossFragmentCarousalBinding?.mediaGalleryView?.setSelectedPhoto(index)
+            }
+        }
 
     private val homeViewModel: HomeViewModel by lazy {
         getFragmentScopedViewModel { HomeViewModel(Gallery.galleryConfig) }
@@ -67,63 +75,16 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
         getPageFromArguments()
     }
 
-    private lateinit var permissionsRequester: PermissionsRequester
-
     private val ossFragmentCarousalBinding: OssFragmentCarousalBinding? by lazy {
         ossFragmentBaseBinding?.baseContainer?.findViewById<LinearLayout>(R.id.linear_layout_parent)
             ?.let { OssFragmentCarousalBinding.bind(it) }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        permissionsRequester = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            constructPermissionsRequest(
-                permissions = arrayOf(
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-                ),
-                onPermissionDenied = ::onPermissionDenied,
-                onNeverAskAgain = ::showNeverAskAgainPermission,
-                requiresPermission = ::checkPermissions,
-                onShowRationale = ::onShowRationale
-            )
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            constructPermissionsRequest(
-                permissions = arrayOf(
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ),
-                onPermissionDenied = ::onPermissionDenied,
-                onNeverAskAgain = ::showNeverAskAgainPermission,
-                requiresPermission = ::checkPermissions,
-                onShowRationale = ::onShowRationale
-            )
-        } else {
-            constructPermissionsRequest(
-                permissions = arrayOf(
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                onPermissionDenied = ::onPermissionDenied,
-                onNeverAskAgain = ::showNeverAskAgainPermission,
-                requiresPermission = ::checkPermissions,
-                onShowRationale = ::onShowRationale
-            )
-        }
-    }
-
-    private fun onShowRationale(permissionRequest: PermissionRequest) {
-        Gallery.galleryConfig.galleryCommunicator?.onShowPermissionRationale(
-            PermissionRequestWrapper(permissionRequest)
-        )
-    }
-
     override fun getLayoutId() = R.layout.oss_fragment_carousal
 
     override fun getScreenTitle() =
-        Gallery.galleryConfig.galleryLabels.homeTitle.ifBlank { getString(R.string.oss_title_home_screen) }
+        Gallery.galleryConfig.galleryLabels.homeTitle?.ifBlank { getString(R.string.oss_title_home_screen) }
+            ?: getString(R.string.oss_title_home_screen)
 
     override fun setUpViews() {
         Gallery.pagerCommunicator = this
@@ -140,19 +101,20 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
         }
 
         ossFragmentCarousalBinding?.actionButton?.text =
-            if (Gallery.galleryConfig.galleryLabels.homeAction.isNotBlank())
+            if (Gallery.galleryConfig.galleryLabels.homeAction?.isNotBlank() == true)
                 Gallery.galleryConfig.galleryLabels.homeAction
             else
                 getString(R.string.oss_posting_next)
         ossFragmentCarousalBinding?.actionButton?.isAllCaps = Gallery.galleryConfig.textAllCaps
-
+        ossFragmentCarousalBinding?.actionButton?.text =
+            Gallery.galleryConfig.galleryLabels.homeAction?.ifBlank { getString(R.string.oss_posting_next) }
+                ?: getString(R.string.oss_posting_next)
         ossFragmentBaseBinding?.ossCustomTool?.apply {
             toolbarTitle.isAllCaps = Gallery.galleryConfig.textAllCaps
             toolbarTitle.gravity = Gallery.galleryConfig.galleryLabels.titleAlignment
             toolbarBackButton.setImageResource(Gallery.galleryConfig.galleryUiConfig.backIcon)
         }
-
-        permissionsRequester.launch()
+        requestPermissions()
     }
 
 
@@ -180,10 +142,12 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
                 isSelected = false
                 setOnClickListener { onActionButtonClicked() }
             }
+            checkPermission()
         }
     }
 
     private fun onPermissionDenied() {
+        checkPermission()
         Gallery.galleryConfig.galleryCommunicator?.onPermissionDenied()
     }
 
@@ -238,7 +202,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
 
     private fun setUpWithOutTabLayout() {
         ossFragmentCarousalBinding?.tabLayout?.visibility = View.GONE
-        mediaGalleryView.setImagesForPager(
+        ossFragmentCarousalBinding?.mediaGalleryView?.setImagesForPager(
             convertPhotoFileToMediaGallery(
                 getPhotosFromArguments()
             )
@@ -269,7 +233,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     }
 
     private fun setUpWithTabLayout() {
-        viewPager.apply {
+        ossFragmentCarousalBinding?.viewPager.apply {
             PagerAdapter(
                 childFragmentManager, listOf(
                     PhotoGridFragment.getInstance(
@@ -282,9 +246,9 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
                     )
                 )
             ).apply {
-                viewPager.adapter = this
+                ossFragmentCarousalBinding?.viewPager?.adapter = this
             }
-            tabLayout.setupWithViewPager(viewPager)
+            ossFragmentCarousalBinding?.tabLayout?.setupWithViewPager(ossFragmentCarousalBinding?.viewPager)
         }
     }
 
@@ -383,26 +347,56 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
             mediaIndex,
             bridgeViewModel.getSelectedPhotos().size
         )
-        MediaGalleryActivity.startActivityForResult(
-            this, convertPhotoFileToMediaGallery(
-                bridgeViewModel.getSelectedPhotos()
-            ), mediaIndex, "", PHOTO_PREVIEW
+        val intent = MediaGalleryActivity.createIntent(
+            this,
+            convertPhotoFileToMediaGallery(bridgeViewModel.getSelectedPhotos()),
+            mediaIndex,
+            ""
         )
+        photoPreviewLauncher.launch(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PHOTO_PREVIEW && view != null) {
-            var index = 0
-            if (data != null) {
-                val bundle = data.extras
-                index = bundle!!.getInt("gallery_media_index", 0)
-            }
-            Gallery.carousalActionListener?.onGalleryImagePreviewClosed(
-                index,
-                bridgeViewModel.getSelectedPhotos().size
-            )
-            ossFragmentCarousalBinding?.mediaGalleryView?.setSelectedPhoto(index)
+    private fun requestPermissions() {
+        PermissionsUtil.requestPermissions(requireActivity(), permissionLauncher)
+    }
+
+    private fun checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_MEDIA_VIDEO
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            // Full access on Android 13 (API level 33) or higher
+            ossFragmentCarousalBinding?.permissionAccessManagement?.visibility = View.GONE
+        } else if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Partial access on Android 14 (API level 34) or higher
+            ossFragmentCarousalBinding?.textView?.text =
+                getString(R.string.photos_partially_granted)
+            ossFragmentCarousalBinding?.button?.text = getString(R.string.allow)
+            ossFragmentCarousalBinding?.permissionAccessManagement?.visibility = View.VISIBLE
+        } else if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Full access up to Android 12 (API level 32)
+            ossFragmentCarousalBinding?.permissionAccessManagement?.visibility = View.GONE
+        } else {
+            // Access denied
+            ossFragmentCarousalBinding?.textView?.text = getString(R.string.photos_denied)
+            ossFragmentCarousalBinding?.button?.text = getString(R.string.allow)
+            ossFragmentCarousalBinding?.permissionAccessManagement?.visibility = View.VISIBLE
         }
     }
 }
