@@ -11,7 +11,7 @@ import com.mediapicker.gallery.domain.entity.PhotoTag
 import com.mediapicker.gallery.domain.entity.Validation
 
 class GalleryConfig(
-    val applicationContext: Context,
+    private val applicationContext: Context,
     val clientAuthority: String,
     var galleryCommunicator: IGalleryCommunicator?,
     val shouldUsePhotoCamera: Boolean,
@@ -28,6 +28,9 @@ class GalleryConfig(
     val galleryUiConfig: GalleryUIConfig
 ) {
 
+    fun getApplicationContext(): Context {
+        return applicationContext
+    }
 
     fun shouldOnlyValidatePhoto() = typeOfMediaSupported == MediaType.PhotoWithFolderOnly || typeOfMediaSupported == MediaType.PhotoOnly || typeOfMediaSupported == MediaType.PhotoWithoutCameraFolderOnly
 

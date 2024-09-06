@@ -2,12 +2,10 @@ package com.mediapicker.gallery.presentation.fragments
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import com.mediapicker.gallery.Gallery
 import com.mediapicker.gallery.R
 import com.mediapicker.gallery.presentation.adapters.OnItemClickListener
 import com.mediapicker.gallery.presentation.adapters.SelectVideoAdapter
-import com.mediapicker.gallery.presentation.utils.getFragmentScopedViewModel
 import com.mediapicker.gallery.presentation.viewmodels.LoadVideoViewModel
 import com.mediapicker.gallery.presentation.viewmodels.VideoFile
 import com.mediapicker.gallery.presentation.viewmodels.VideoItem
@@ -22,8 +20,10 @@ class VideoGridFragment : BaseViewPagerItemFragment(), OnItemClickListener {
         }
     }
 
-    private val loadVideoViewModel: LoadVideoViewModel by lazy {
-        getFragmentScopedViewModel { LoadVideoViewModel(Gallery.galleryConfig) }
+    private val loadVideoViewModel: LoadVideoViewModel? by lazy {
+        context?.applicationContext?.let { appContext->
+            LoadVideoViewModel(Gallery.galleryConfig, appContext.applicationContext)
+        }
     }
 
     private val adapter: SelectVideoAdapter by lazy {
@@ -47,10 +47,10 @@ class VideoGridFragment : BaseViewPagerItemFragment(), OnItemClickListener {
 
     override fun initViewModels() {
         super.initViewModels()
-        loadVideoViewModel.getVideoItem().observe(this) {
+        loadVideoViewModel?.getVideoItem()?.observe(this) {
             updateListItems(it)
         }
-        loadVideoViewModel.loadMedia(this)
+        loadVideoViewModel?.loadMedia(this)
         bridgeViewModel.recordVideoWithNativeCamera().observe(this
         ) { recordVideoWithNativeCamera() }
     }

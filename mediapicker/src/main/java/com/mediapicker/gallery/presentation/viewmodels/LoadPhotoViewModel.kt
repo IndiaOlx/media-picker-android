@@ -1,6 +1,7 @@
 package com.mediapicker.gallery.presentation.viewmodels
 
 //import android.database.DataSetObserver
+import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
@@ -14,8 +15,8 @@ import com.mediapicker.gallery.domain.entity.PhotoAlbum
 import com.mediapicker.gallery.domain.entity.PhotoFile
 import com.mediapicker.gallery.presentation.viewmodels.factory.BaseLoadMediaViewModel
 
-class LoadPhotoViewModel(val galleryConfig: GalleryConfig) :
-    BaseLoadMediaViewModel(galleryConfig) {
+class LoadPhotoViewModel(val galleryConfig: GalleryConfig, val applicationContext: Context) :
+    BaseLoadMediaViewModel(galleryConfig,applicationContext) {
 
     companion object {
         private const val COL_FULL_PHOTO_URL = "fullPhotoUrl"
@@ -36,7 +37,7 @@ class LoadPhotoViewModel(val galleryConfig: GalleryConfig) :
         val mimeTypeGif = MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif")
         val selectionTypeGifArgs = arrayOf(mimeTypeGif)
         return CursorLoader(
-            getApplication(),
+            applicationContext,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, selection,
             selectionTypeGifArgs, MediaStore.Images.Media.DATE_ADDED + " DESC"
         )

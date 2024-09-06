@@ -1,6 +1,7 @@
 package com.mediapicker.gallery.presentation.viewmodels
 
 import android.content.ContentUris
+import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
@@ -13,7 +14,10 @@ import com.mediapicker.gallery.GalleryConfig
 import com.mediapicker.gallery.presentation.viewmodels.factory.BaseLoadMediaViewModel
 import java.io.Serializable
 
-class LoadVideoViewModel(val galleryConfig: GalleryConfig) : BaseLoadMediaViewModel(galleryConfig) {
+class LoadVideoViewModel(val galleryConfig: GalleryConfig, private val applicationContext: Context) : BaseLoadMediaViewModel(
+    galleryConfig,
+    applicationContext
+) {
 
     private val videoItemLiveData = MutableLiveData<List<VideoItem>>()
 
@@ -41,7 +45,7 @@ class LoadVideoViewModel(val galleryConfig: GalleryConfig) : BaseLoadMediaViewMo
             projection.add(folderCriteria.second)
         }
         return CursorLoader(
-            galleryConfig.applicationContext,
+            applicationContext,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, selection,
             projection.toTypedArray(), MediaStore.Images.Media.DATE_TAKEN + " DESC"
         )
@@ -50,33 +54,33 @@ class LoadVideoViewModel(val galleryConfig: GalleryConfig) : BaseLoadMediaViewMo
     override fun getUniqueLoaderId() = 2
 
     override fun prepareDataForAdapterAndPost(cursor: Cursor) {
-        val videoList = mutableListOf<VideoItem>()
-        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
-        val nameColumn =
-            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
-        val durationColumn =
-            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
-        val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
+            val videoList = mutableListOf<VideoItem>()
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+            val nameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+            val durationColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
 
-        videoList.add(RecordVideoItem())
-        if (cursor.moveToFirst()) {
-            do {
-                val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
-                val duration = cursor.getInt(durationColumn)
-                val size = cursor.getInt(sizeColumn)
-                val contentUri: Uri =
-                    ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
-                val thumbnail = MediaStore.Video.Thumbnails.getThumbnail(
-                    galleryConfig.applicationContext.contentResolver,
-                    id, MediaStore.Video.Thumbnails.MICRO_KIND, null
-                )
-                if (!name.isNullOrBlank() && duration > 0)
-                    videoList += VideoFile(id, contentUri, name, duration, size, thumbnail)
-            } while (cursor.moveToNext())
-        }
-        loadingStateLiveData.postValue(StateData.SUCCESS)
-        videoItemLiveData.postValue(videoList)
+            videoList.add(RecordVideoItem())
+            if (cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getLong(idColumn)
+                    val name = cursor.getString(nameColumn)
+                    val duration = cursor.getInt(durationColumn)
+                    val size = cursor.getInt(sizeColumn)
+                    val contentUri: Uri =
+                        ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+                    val thumbnail = MediaStore.Video.Thumbnails.getThumbnail(
+                        applicationContext.contentResolver,
+                        id, MediaStore.Video.Thumbnails.MICRO_KIND, null
+                    )
+                    if (!name.isNullOrBlank() && duration > 0)
+                        videoList += VideoFile(id, contentUri, name, duration, size, thumbnail)
+                } while (cursor.moveToNext())
+            }
+            loadingStateLiveData.postValue(StateData.SUCCESS)
+            videoItemLiveData.postValue(videoList)
     }
 }
 

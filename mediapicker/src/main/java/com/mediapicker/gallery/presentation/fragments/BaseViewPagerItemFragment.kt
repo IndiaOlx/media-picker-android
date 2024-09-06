@@ -12,6 +12,7 @@ import com.mediapicker.gallery.R
 import com.mediapicker.gallery.databinding.OssFragmentGalleryBinding
 import com.mediapicker.gallery.presentation.utils.getActivityScopedViewModel
 import com.mediapicker.gallery.presentation.viewmodels.BridgeViewModel
+import com.mediapicker.gallery.presentation.viewmodels.LoadVideoViewModel
 import com.mediapicker.gallery.presentation.viewmodels.StateData
 import com.mediapicker.gallery.presentation.viewmodels.factory.BaseLoadMediaViewModel
 import com.mediapicker.gallery.util.ItemOffsetDecoration
@@ -40,7 +41,7 @@ abstract class BaseViewPagerItemFragment : BaseFragment() {
     override fun initViewModels() {
         super.initViewModels()
         bridgeViewModel.getMediaStateLiveData().observe(this) { reloadMedia() }
-        getBaseLoadMediaViewModel().getLoadingState().observe(this) { handleLoadingState(it) }
+        getBaseLoadMediaViewModel()?.getLoadingState()?.observe(this) { handleLoadingState(it) }
     }
 
     override fun setUpViews() {
@@ -59,10 +60,10 @@ abstract class BaseViewPagerItemFragment : BaseFragment() {
 
     override fun getLayoutId() = R.layout.oss_fragment_gallery
 
-    abstract fun getBaseLoadMediaViewModel(): BaseLoadMediaViewModel
+    abstract fun getBaseLoadMediaViewModel(): BaseLoadMediaViewModel?
 
     protected open fun reloadMedia() {
-        getBaseLoadMediaViewModel().loadMedia(this)
+        getBaseLoadMediaViewModel()?.loadMedia(this)
     }
 
     private fun handleLoadingState(stateData: StateData) {

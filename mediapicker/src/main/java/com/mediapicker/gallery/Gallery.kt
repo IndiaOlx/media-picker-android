@@ -19,9 +19,11 @@ object Gallery {
         galleryConfig.galleryCommunicator = galleryCommunicator
     }
 
-    internal fun getApp() = galleryConfig.applicationContext
+    internal fun getApp() = galleryConfig.getApplicationContext()
 
     internal fun getClientAuthority() = galleryConfig.clientAuthority
+
+    internal fun isGalleryConfigInitialized() = galleryConfig.isGalleryInitialize()
 
     fun clean() {
         pagerCommunicator = null

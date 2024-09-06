@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
@@ -61,8 +60,12 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
     }
 
 
-    private val loadPhotoViewModel: LoadPhotoViewModel by lazy {
-        getFragmentScopedViewModel { LoadPhotoViewModel(Gallery.galleryConfig) }
+    private val loadPhotoViewModel: LoadPhotoViewModel? by lazy {
+        context?.let { appContext->
+            getFragmentScopedViewModel {
+                LoadPhotoViewModel(Gallery.galleryConfig, appContext.applicationContext)
+            }
+        }
     }
 
     private val galleryItemAdapter: SelectPhotoImageAdapter by lazy {
@@ -92,7 +95,7 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
             }
             // To avoid preselect issue during camera photo click
             // addItem(getPhoto(lastRequestFileToSavePath))
-            loadPhotoViewModel.loadMedia(this)
+            loadPhotoViewModel?.loadMedia(this)
         } else {
             isExpectingNewPhoto = false
         }
@@ -107,13 +110,13 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
     override fun initViewModels() {
         super.initViewModels()
         for (listCurrentPhoto in listCurrentPhotos) {
-            loadPhotoViewModel.currentSelectedPhotos.add(listCurrentPhoto)
+            loadPhotoViewModel?.currentSelectedPhotos?.add(listCurrentPhoto)
         }
-        loadPhotoViewModel.getGalleryItems().observe(this) {
+        loadPhotoViewModel?.getGalleryItems()?.observe(this) {
             galleryItemAdapter.updateGalleryItems(it)
             onStepValidate()
         }
-        loadPhotoViewModel.loadMedia(this)
+        loadPhotoViewModel?.loadMedia(this)
     }
 
     private val galleryItemSelectHandler = object :
