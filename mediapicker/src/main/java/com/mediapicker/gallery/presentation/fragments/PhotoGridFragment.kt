@@ -8,19 +8,25 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.mediapicker.gallery.Gallery
 import com.mediapicker.gallery.R
+import com.mediapicker.gallery.domain.entity.Action
+import com.mediapicker.gallery.domain.entity.Photo
 import com.mediapicker.gallery.domain.entity.PhotoFile
+import com.mediapicker.gallery.domain.entity.Status
 import com.mediapicker.gallery.presentation.activity.FolderViewActivity
 import com.mediapicker.gallery.presentation.adapters.IGalleryItemClickListener
 import com.mediapicker.gallery.presentation.adapters.SelectPhotoImageAdapter
 import com.mediapicker.gallery.presentation.utils.Constants.EXTRA_SELECTED_PHOTO
 import com.mediapicker.gallery.presentation.utils.FileUtils
 import com.mediapicker.gallery.presentation.utils.ValidatePhotos
+import com.mediapicker.gallery.presentation.utils.saveUriToInternalStorage
 import com.mediapicker.gallery.presentation.viewmodels.LoadPhotoViewModel
 import java.io.Serializable
 
@@ -74,15 +80,11 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
         )
     }
 
-    private var photoSelectionLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                val finalSelectionFromFolders =
-                    data?.getSerializableExtra(EXTRA_SELECTED_PHOTO) as? LinkedHashSet<PhotoFile>
-                finalSelectionFromFolders?.let {
-                    setSelectedFromFolderAndNotify(it)
-                }
+    private val photoSelectionLauncher =
+        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(5)) { uris ->
+            uris.forEach {
+                val file = context?.saveUriToInternalStorage(it)
+                bridgeViewModel.addPhoto(file)
             }
         }
 
@@ -130,10 +132,7 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
         override fun onFolderItemClick() {
             //trackingService.postingFolderSelect()
             bridgeViewModel.onFolderSelect()
-            val intent = Intent(requireContext(), FolderViewActivity::class.java).apply {
-                putExtra(EXTRA_SELECTED_PHOTO, currentSelectedPhotos)
-            }
-            photoSelectionLauncher.launch(intent)
+            photoSelectionLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         override fun onCameraIconClick() {
