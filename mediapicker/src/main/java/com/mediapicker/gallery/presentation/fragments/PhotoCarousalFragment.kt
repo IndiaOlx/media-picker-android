@@ -1,18 +1,13 @@
 package com.mediapicker.gallery.presentation.fragments
 
-import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.mediapicker.gallery.Gallery
-import com.mediapicker.gallery.GalleryConfig
 import com.mediapicker.gallery.R
 import com.mediapicker.gallery.databinding.OssFragmentCarousalBinding
 import com.mediapicker.gallery.domain.contract.GalleryPagerCommunicator
@@ -104,6 +99,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
             toolbarTitle.gravity = Gallery.galleryConfig.galleryLabels.titleAlignment
             toolbarBackButton.setImageResource(Gallery.galleryConfig.galleryUiConfig.backIcon)
         }
+        ossFragmentCarousalBinding?.actionButton?.setOnClickListener { onActionButtonClicked() }
         setUpWithOutTabLayout()
     }
 
