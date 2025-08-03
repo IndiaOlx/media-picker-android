@@ -54,7 +54,6 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="stateAlwaysHidden"
-
             android:screenOrientation="portrait" />
 
         <provider
