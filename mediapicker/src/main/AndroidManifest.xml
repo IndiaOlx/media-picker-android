@@ -5,11 +5,15 @@
         <activity
             android:name="com.mediapicker.gallery.presentation.activity.FolderViewActivity"
             android:exported="false"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait" />
 
         <activity
             android:name="com.mediapicker.gallery.presentation.activity.GalleryActivity"
             android:exported="false"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait" />
 
         <activity
