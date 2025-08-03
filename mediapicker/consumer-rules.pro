@@ -6,6 +6,11 @@
 # Keep the main activity class that might be referenced externally
 -keep class com.mediapicker.gallery.presentation.activity.MediaGalleryActivity { *; }
 
+-keep class com.mediapicker.gallery.presentation.activity.GalleryActivity { *; }
+
+-keep class com.mediapicker.gallery.presentation.activity.FolderViewActivity { *; }
+
+
 # Keep all fragment classes to prevent issues with fragment transactions
 -keep class com.mediapicker.gallery.presentation.fragments.** { *; }
 

@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mediapicker.gallery.Gallery
+import com.mediapicker.gallery.Gallery.galleryConfig
 import com.mediapicker.gallery.R
 import com.mediapicker.gallery.data.repositories.GalleryService
 import com.mediapicker.gallery.databinding.OssFragmentFolderViewBinding
@@ -63,14 +64,14 @@ class FolderViewFragment : BaseGalleryViewFragment(), OnItemClickListener<PhotoA
         }
         ossFragmentFolderView?.actionButton?.isSelected = true
 
-        if (Gallery.galleryConfig?.galleryLabels?.galleryFolderAction?.isNotBlank() == true) {
+        if (galleryConfig?.galleryLabels?.galleryFolderAction?.isNotBlank() == true) {
             ossFragmentFolderView?.actionButton?.text =
-                Gallery.galleryConfig?.galleryLabels?.galleryFolderAction ?: ""
+                galleryConfig?.galleryLabels?.galleryFolderAction ?: ""
         }
-        ossFragmentFolderView?.actionButton?.isAllCaps = Gallery.galleryConfig?.textAllCaps ?: true
+        ossFragmentFolderView?.actionButton?.isAllCaps = galleryConfig?.textAllCaps ?: true
         ossFragmentBaseBinding?.ossCustomTool?.toolbarTitle?.apply {
-            isAllCaps = Gallery.galleryConfig?.textAllCaps ?: true
-            gravity = Gallery.galleryConfig?.galleryLabels?.titleAlignment ?: Gravity.CENTER
+            isAllCaps = galleryConfig?.textAllCaps ?: true
+            gravity = galleryConfig?.galleryLabels?.titleAlignment ?: Gravity.CENTER
         }
     }
 
