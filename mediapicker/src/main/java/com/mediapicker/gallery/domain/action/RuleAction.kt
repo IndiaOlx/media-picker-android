@@ -1,5 +1,6 @@
 package com.mediapicker.gallery.domain.action
 
+import com.mediapicker.gallery.domain.entity.Rule
 import com.mediapicker.gallery.domain.entity.Validation
 
 class RuleAction(private val mediaValidation: Validation) {
@@ -8,7 +9,7 @@ class RuleAction(private val mediaValidation: Validation) {
     fun getFirstFailingMessage(selectedMediaSizes: Pair<Int, Int>): String {
         val photoRulePass = validationPhotoRules(selectedSize = selectedMediaSizes.first)
         val videoRulePass = validationVideoRules(selectedSize = selectedMediaSizes.second)
-        return if (photoRulePass.isNotEmpty()) photoRulePass else videoRulePass
+        return photoRulePass.ifEmpty { videoRulePass }
     }
 
     fun shouldEnableActionButton(selectedMediaSizes: Pair<Int, Int>): Boolean {
@@ -23,8 +24,8 @@ class RuleAction(private val mediaValidation: Validation) {
     }
 
     private fun validationPhotoRules(selectedSize: Int): String {
-        val photoMinRule = mediaValidation.getMinPhotoSelectionRule()
-        val photoMaxRule = mediaValidation.getMaxPhotoSelectionRule()
+        val photoMinRule: Rule.MinPhotoSelection = mediaValidation.getMinPhotoSelectionRule()
+        val photoMaxRule: Rule.MaxPhotoSelection = mediaValidation.getMaxPhotoSelectionRule()
         return when {
             photoMinRule.minSelectionLimit > selectedSize -> photoMinRule.message
             photoMaxRule.maxSelectionLimit < selectedSize -> photoMaxRule.message

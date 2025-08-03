@@ -67,10 +67,12 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
 
     private val galleryItemAdapter: SelectPhotoImageAdapter by lazy {
         SelectPhotoImageAdapter(
-            emptyList(),
-            listCurrentPhotos,
-            galleryItemSelectHandler,
-            true
+            listOfGalleryItems = emptyList(),
+            listCurrentPhotos = listCurrentPhotos,
+            onGalleryItemClickListener = galleryItemSelectHandler,
+            fromGallery = true,
+            galleryConfig = Gallery.galleryConfig
+                ?: throw Exception("Gallery configuration can't be null")
         )
     }
 
@@ -148,8 +150,7 @@ open class PhotoGridFragment : BaseViewPagerItemFragment() {
 
         isExpectingNewPhoto = true
         val lastRequestFileToSave = FileUtils.getNewPhotoFileOnPicturesDirectory()
-        val fileUri: Uri
-        fileUri = if (android.text.TextUtils.isEmpty(Gallery.getClientAuthority())) {
+        val fileUri: Uri = if (android.text.TextUtils.isEmpty(Gallery.getClientAuthority())) {
             Uri.fromFile(lastRequestFileToSave)
         } else {
             FileProvider.getUriForFile(

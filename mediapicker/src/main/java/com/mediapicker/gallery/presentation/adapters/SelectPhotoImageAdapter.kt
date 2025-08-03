@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil3.load
 import coil3.request.CachePolicy
-import com.mediapicker.gallery.Gallery
+import com.mediapicker.gallery.GalleryConfig
 import com.mediapicker.gallery.R
 import com.mediapicker.gallery.databinding.OssItemCameraSelectionBinding
 import com.mediapicker.gallery.databinding.OssItemPhotoSelectionBinding
@@ -28,7 +28,8 @@ class SelectPhotoImageAdapter(
     private var listOfGalleryItems: List<IGalleryItem>,
     var listCurrentPhotos: List<PhotoFile>,
     private val onGalleryItemClickListener: IGalleryItemClickListener,
-    private val fromGallery: Boolean = true
+    private val fromGallery: Boolean = true,
+    private val galleryConfig: GalleryConfig
 ) : RecyclerView.Adapter<ViewHolder>() {
 
     companion object {
@@ -81,7 +82,7 @@ class SelectPhotoImageAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         when (viewHolder.itemViewType) {
             ITEM_TYPE_CAMERA -> {
-                val uiConfig = Gallery.galleryConfig.galleryUiConfig
+                val uiConfig = galleryConfig.galleryUiConfig
                 val cameraViewHolder = viewHolder as CameraViewHolder
 
                 val tile = cameraViewHolder.itemView.findViewById<ConstraintLayout>(R.id.gridTile)
@@ -93,7 +94,7 @@ class SelectPhotoImageAdapter(
                 )
 
                 cameraViewHolder.itemView.setOnClickListener { onClickCamera() }
-                cameraViewHolder.binding.folderName.isAllCaps = Gallery.galleryConfig.textAllCaps
+                cameraViewHolder.binding.folderName.isAllCaps = galleryConfig.textAllCaps
                 cameraViewHolder.binding.folderName.text =
                     viewHolder.itemView.context.getString(R.string.oss_label_camera)
                 cameraViewHolder.binding.img.setImageResource(uiConfig.cameraIcon)
@@ -101,7 +102,7 @@ class SelectPhotoImageAdapter(
 
             ITEM_TYPE_ALBUM -> {
                 val cameraViewHolder = viewHolder as CameraViewHolder
-                val uiConfig = Gallery.galleryConfig.galleryUiConfig
+                val uiConfig = galleryConfig.galleryUiConfig
 
                 val tile = cameraViewHolder.binding.gridTile
                 tile.setBackgroundColor(
@@ -112,7 +113,7 @@ class SelectPhotoImageAdapter(
                 )
 
                 cameraViewHolder.itemView.setOnClickListener { onGalleryItemClickListener.onFolderItemClick() }
-                cameraViewHolder.binding.folderName.isAllCaps = Gallery.galleryConfig.textAllCaps
+                cameraViewHolder.binding.folderName.isAllCaps = galleryConfig.textAllCaps
                 cameraViewHolder.binding.folderName.text =
                     viewHolder.itemView.context.getString(R.string.oss_label_folder)
                 cameraViewHolder.binding.img.setImageResource(uiConfig.folderIcon)
@@ -173,13 +174,13 @@ class SelectPhotoImageAdapter(
     }
 
     private fun setSelectedPhoto(photoViewHolder: PhotoViewHolder) {
-        if (Gallery.galleryConfig.photoTag.shouldShowPhotoTag) {
+        if (galleryConfig.photoTag.shouldShowPhotoTag) {
             photoViewHolder.binding.imgCoverText.visibility = View.VISIBLE
-            photoViewHolder.binding.imgCoverText.text = Gallery.galleryConfig.photoTag.photoTagText
-        } else if (listCurrentPhotos.indexOf(photoViewHolder.photoFile) == 0 && Gallery.galleryConfig.needToShowCover.shouldShowPhotoTag) {
+            photoViewHolder.binding.imgCoverText.text = galleryConfig.photoTag.photoTagText
+        } else if (listCurrentPhotos.indexOf(photoViewHolder.photoFile) == 0 && galleryConfig.needToShowCover.shouldShowPhotoTag) {
             photoViewHolder.binding.imgCoverText.visibility = View.VISIBLE
             photoViewHolder.binding.imgCoverText.text =
-                Gallery.galleryConfig.needToShowCover.photoTagText
+                galleryConfig.needToShowCover.photoTagText
         } else {
             photoViewHolder.binding.imgCoverText.visibility = View.GONE
         }

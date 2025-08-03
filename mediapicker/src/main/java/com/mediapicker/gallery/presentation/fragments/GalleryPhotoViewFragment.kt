@@ -58,14 +58,19 @@ class GalleryPhotoViewFragment : BaseGalleryViewFragment() {
     override fun setUpViews() {
         ossFragmentFolderView?.actionButton?.setOnClickListener { onActionButtonClick() }
 
-        photoAlbum.let { album ->
-            adapter = SelectPhotoImageAdapter(
-                album.getAlbumEntries(),
-                currentSelectedPhotos.toList(),
-                galleryItemClickListener,
-                fromGallery = false
-            )
+        Gallery.galleryConfig?.let {
+            photoAlbum.let { album ->
+                adapter = SelectPhotoImageAdapter(
+                    album.getAlbumEntries(),
+                    currentSelectedPhotos.toList(),
+                    galleryItemClickListener,
+                    fromGallery = false,
+                    galleryConfig = it
+
+                )
+            }
         }
+
 
         ossFragmentFolderView?.folderRV?.apply {
             this.addItemDecoration(
@@ -80,13 +85,13 @@ class GalleryPhotoViewFragment : BaseGalleryViewFragment() {
 
         ossFragmentFolderView?.actionButton?.isSelected = true
 
-        if (Gallery.galleryConfig.galleryLabels.galleryFolderAction?.isNotBlank() == true) {
+        if (Gallery.galleryConfig?.galleryLabels?.galleryFolderAction?.isNotBlank() == true) {
             ossFragmentFolderView?.actionButton?.text =
-                Gallery.galleryConfig.galleryLabels.galleryFolderAction
+                Gallery.galleryConfig?.galleryLabels?.galleryFolderAction
         }
         ossFragmentBaseBinding?.ossCustomTool?.toolbarTitle?.isAllCaps =
-            Gallery.galleryConfig.textAllCaps
-        ossFragmentFolderView?.actionButton?.isAllCaps = Gallery.galleryConfig.textAllCaps
+            Gallery.galleryConfig?.textAllCaps ?: true
+        ossFragmentFolderView?.actionButton?.isAllCaps = Gallery.galleryConfig?.textAllCaps == true
 
 //        baseBinding.customToolbar.apply {
 //            toolbarTitle.isAllCaps = Gallery.galleryConfig.textAllCaps

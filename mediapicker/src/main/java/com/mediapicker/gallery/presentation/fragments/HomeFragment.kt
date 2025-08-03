@@ -63,14 +63,14 @@ open class HomeFragment : BaseFragment() {
     override fun getLayoutId() = R.layout.oss_fragment_main
 
     override fun getScreenTitle() =
-        Gallery.galleryConfig.galleryLabels.homeTitle?.ifBlank { getString(R.string.oss_title_home_screen) }
+        Gallery.galleryConfig?.galleryLabels?.homeTitle?.ifBlank { getString(R.string.oss_title_home_screen) }
             ?: getString(R.string.oss_title_home_screen)
 
     override fun setUpViews() {
         ossFragmentMainBinding?.actionButton?.apply {
             setOnClickListener { onActionButtonClicked() }
             text =
-                Gallery.galleryConfig.galleryLabels.homeAction?.ifBlank { getString(R.string.oss_posting_next) }
+                Gallery.galleryConfig?.galleryLabels?.homeAction?.ifBlank { getString(R.string.oss_posting_next) }
                     ?: getString(R.string.oss_posting_next)
             isSelected = false
         }
@@ -105,6 +105,8 @@ open class HomeFragment : BaseFragment() {
             GalleryConfig.MediaType.PhotoWithoutCameraFolderOnly -> {
                 setUpWithOutTabLayout()
             }
+
+            null -> {}
         }
         openPage()
         ossFragmentMainBinding?.actionButton?.isSelected = false
@@ -116,12 +118,12 @@ open class HomeFragment : BaseFragment() {
         checkPermission()
 
         // activity?.supportFragmentManager?.popBackStack()
-        Gallery.galleryConfig.galleryCommunicator?.onPermissionDenied()
+        Gallery.galleryConfig?.galleryCommunicator?.onPermissionDenied()
     }
 
     fun showNeverAskAgainPermission() {
         //. Toast.makeText(context, R.string.oss_permissions_denied_attach_image, Toast.LENGTH_LONG).show()
-        Gallery.galleryConfig.galleryCommunicator?.onNeverAskPermissionAgain()
+        Gallery.galleryConfig?.galleryCommunicator?.onNeverAskPermissionAgain()
     }
 
     override fun initViewModels() {

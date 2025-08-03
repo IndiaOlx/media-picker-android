@@ -11,9 +11,13 @@ class ValidatePhotos {
 
     fun canAddThisToList(currentNoOfAdded: Int, postingDraftPhoto: PhotoFile): ValidationResult {
         var canAddThisToList = true
-        var exception: Throwable = InValidPhotoException(Gallery.galleryConfig.validation.getMaxPhotoSelectionRule().message)
+        var exception: Throwable = InValidPhotoException(
+            Gallery.galleryConfig?.validation?.getMaxPhotoSelectionRule()?.message ?: ""
+        )
 
-        if (currentNoOfAdded < Gallery.galleryConfig.validation.getMaxPhotoSelectionRule().maxSelectionLimit) {
+        if (currentNoOfAdded < (Gallery.galleryConfig?.validation?.getMaxPhotoSelectionRule()?.maxSelectionLimit
+                ?: 5)
+        ) {
             val pair = checkIfValidImage(postingDraftPhoto, canAddThisToList)
             canAddThisToList = pair.first
             exception = pair.second
@@ -39,7 +43,7 @@ class ValidatePhotos {
     }
 
     fun complyRulesImages(path: String?): Rule? {
-        Gallery.galleryConfig.validation.rules.forEach { rules ->
+        Gallery.galleryConfig?.validation?.rules?.forEach { rules ->
             if (!complyImageRule(path, rules)) {
                 return rules
             }
@@ -74,7 +78,8 @@ class ValidatePhotos {
     }
 
     fun shouldAddThisToList(currentNoOfAdded: Int, postingDraftPhoto: PhotoFile): Boolean {
-        return (currentNoOfAdded <= Gallery.galleryConfig.validation.getMaxPhotoSelectionRule().maxSelectionLimit && validatePhoto(
+        return (currentNoOfAdded <= (Gallery.galleryConfig?.validation?.getMaxPhotoSelectionRule()?.maxSelectionLimit
+            ?: 5) && validatePhoto(
             postingDraftPhoto
         ))
     }

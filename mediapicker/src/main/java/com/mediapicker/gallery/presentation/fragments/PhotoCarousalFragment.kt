@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
@@ -83,36 +84,45 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     override fun getLayoutId() = R.layout.oss_fragment_carousal
 
     override fun getScreenTitle() =
-        Gallery.galleryConfig.galleryLabels.homeTitle?.ifBlank { getString(R.string.oss_title_home_screen) }
+        Gallery.galleryConfig?.galleryLabels?.homeTitle?.ifBlank { getString(R.string.oss_title_home_screen) }
             ?: getString(R.string.oss_title_home_screen)
 
     override fun setUpViews() {
         Gallery.pagerCommunicator = this
 
-        if (Gallery.galleryConfig.showPreviewCarousal.showCarousal) {
+        if (Gallery.galleryConfig?.showPreviewCarousal?.showCarousal == true) {
             ossFragmentCarousalBinding?.mediaGalleryViewContainer?.visibility = View.VISIBLE
             ossFragmentCarousalBinding?.mediaGalleryView?.setOnGalleryClickListener(this)
-            if (Gallery.galleryConfig.showPreviewCarousal.imageId != 0) {
-                ossFragmentCarousalBinding?.mediaGalleryView?.updateDefaultPhoto(Gallery.galleryConfig.showPreviewCarousal.imageId)
+            if (Gallery.galleryConfig?.showPreviewCarousal?.imageId != 0) {
+                ossFragmentCarousalBinding?.mediaGalleryView?.updateDefaultPhoto(
+                    Gallery.galleryConfig?.showPreviewCarousal?.imageId
+                        ?: R.drawable.ic_no_images_black_48dp
+                )
             }
-            if (Gallery.galleryConfig.showPreviewCarousal.previewText != 0) {
-                ossFragmentCarousalBinding?.mediaGalleryView?.updateDefaultText(Gallery.galleryConfig.showPreviewCarousal.previewText)
+            if (Gallery.galleryConfig?.showPreviewCarousal?.previewText != 0) {
+                ossFragmentCarousalBinding?.mediaGalleryView?.updateDefaultText(
+                    Gallery.galleryConfig?.showPreviewCarousal?.previewText ?: R.string.preview
+                )
             }
         }
 
         ossFragmentCarousalBinding?.actionButton?.text =
-            if (Gallery.galleryConfig.galleryLabels.homeAction?.isNotBlank() == true)
-                Gallery.galleryConfig.galleryLabels.homeAction
+            if (Gallery.galleryConfig?.galleryLabels?.homeAction?.isNotBlank() == true)
+                Gallery.galleryConfig?.galleryLabels?.homeAction
             else
                 getString(R.string.oss_posting_next)
-        ossFragmentCarousalBinding?.actionButton?.isAllCaps = Gallery.galleryConfig.textAllCaps
+        ossFragmentCarousalBinding?.actionButton?.isAllCaps =
+            Gallery.galleryConfig?.textAllCaps ?: true
         ossFragmentCarousalBinding?.actionButton?.text =
-            Gallery.galleryConfig.galleryLabels.homeAction?.ifBlank { getString(R.string.oss_posting_next) }
+            Gallery.galleryConfig?.galleryLabels?.homeAction?.ifBlank { getString(R.string.oss_posting_next) }
                 ?: getString(R.string.oss_posting_next)
         ossFragmentBaseBinding?.ossCustomTool?.apply {
-            toolbarTitle.isAllCaps = Gallery.galleryConfig.textAllCaps
-            toolbarTitle.gravity = Gallery.galleryConfig.galleryLabels.titleAlignment
-            toolbarBackButton.setImageResource(Gallery.galleryConfig.galleryUiConfig.backIcon)
+            toolbarTitle.isAllCaps = Gallery.galleryConfig?.textAllCaps ?: true
+            toolbarTitle.gravity =
+                Gallery.galleryConfig?.galleryLabels?.titleAlignment ?: Gravity.CENTER
+            toolbarBackButton.setImageResource(
+                Gallery.galleryConfig?.galleryUiConfig?.backIcon ?: R.drawable.oss_media_ic_back
+            )
         }
         requestPermissions()
     }
@@ -148,7 +158,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
 
     private fun onPermissionDenied() {
         checkPermission()
-        Gallery.galleryConfig.galleryCommunicator?.onPermissionDenied()
+        Gallery.galleryConfig?.galleryCommunicator?.onPermissionDenied()
     }
 
     private fun addMediaForPager(mediaGalleryEntity: MediaGalleryEntity) {
@@ -160,7 +170,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     }
 
     private fun showNeverAskAgainPermission() {
-        Gallery.galleryConfig.galleryCommunicator?.onNeverAskPermissionAgain()
+        Gallery.galleryConfig?.galleryCommunicator?.onNeverAskPermissionAgain()
     }
 
     override fun initViewModels() {
@@ -192,7 +202,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     }
 
     private fun changeActionButtonState(state: Boolean) {
-        Gallery.galleryConfig.galleryCommunicator?.onStepValidate(state)
+        Gallery.galleryConfig?.galleryCommunicator?.onStepValidate(state)
         ossFragmentCarousalBinding?.actionButton?.isSelected = state
     }
 
@@ -232,25 +242,25 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
         bridgeViewModel.complyRules()
     }
 
-    private fun setUpWithTabLayout() {
-        ossFragmentCarousalBinding?.viewPager.apply {
-            PagerAdapter(
-                childFragmentManager, listOf(
-                    PhotoGridFragment.getInstance(
-                        getString(R.string.oss_title_tab_photo),
-                        getPhotosFromArguments()
-                    ),
-                    VideoGridFragment.getInstance(
-                        getString(R.string.oss_title_tab_video),
-                        getVideosFromArguments()
-                    )
-                )
-            ).apply {
-                ossFragmentCarousalBinding?.viewPager?.adapter = this
-            }
-            ossFragmentCarousalBinding?.tabLayout?.setupWithViewPager(ossFragmentCarousalBinding?.viewPager)
-        }
-    }
+//    private fun setUpWithTabLayout() {
+//        ossFragmentCarousalBinding?.viewPager.apply {
+//            PagerAdapter(
+//                childFragmentManager, listOf(
+//                    PhotoGridFragment.getInstance(
+//                        getString(R.string.oss_title_tab_photo),
+//                        getPhotosFromArguments()
+//                    ),
+//                    VideoGridFragment.getInstance(
+//                        getString(R.string.oss_title_tab_video),
+//                        getVideosFromArguments()
+//                    )
+//                )
+//            ).apply {
+//                ossFragmentCarousalBinding?.viewPager?.adapter = this
+//            }
+//            ossFragmentCarousalBinding?.tabLayout?.setupWithViewPager(ossFragmentCarousalBinding?.viewPager)
+//        }
+//    }
 
 //    private fun setUpWithTabLayout() {
 //        PagerAdapter(
@@ -300,11 +310,11 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
 
     override fun onItemClicked(photoFile: PhotoFile, isSelected: Boolean) {
         if (isSelected) {
-            if (Gallery.galleryConfig.showPreviewCarousal.addImage) {
+            if (Gallery.galleryConfig?.showPreviewCarousal?.addImage == true) {
                 addMediaForPager(getMediaEntity(photoFile))
             }
         } else {
-            if (Gallery.galleryConfig.showPreviewCarousal.addImage) {
+            if (Gallery.galleryConfig?.showPreviewCarousal?.addImage == true) {
                 removeMediaFromPager(getMediaEntity(photoFile))
             }
         }
@@ -335,7 +345,7 @@ open class PhotoCarousalFragment : BaseFragment(), GalleryPagerCommunicator,
     }
 
     override fun onPreviewItemsUpdated(listOfSelectedPhotos: List<PhotoFile>) {
-        if (Gallery.galleryConfig.showPreviewCarousal.addImage) {
+        if (Gallery.galleryConfig?.showPreviewCarousal?.addImage == true) {
             ossFragmentCarousalBinding?.mediaGalleryView?.setImagesForPager(
                 convertPhotoFileToMediaGallery(listOfSelectedPhotos)
             )

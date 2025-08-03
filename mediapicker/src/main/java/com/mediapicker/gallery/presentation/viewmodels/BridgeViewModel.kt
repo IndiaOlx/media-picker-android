@@ -5,14 +5,24 @@ import androidx.lifecycle.ViewModel
 import com.mediapicker.gallery.GalleryConfig
 import com.mediapicker.gallery.domain.action.RuleAction
 import com.mediapicker.gallery.domain.entity.PhotoFile
+import com.mediapicker.gallery.domain.entity.Rule
+import com.mediapicker.gallery.domain.entity.Validation
 
 class BridgeViewModel(
     private var listOfSelectedPhotos: List<PhotoFile>,
-    private var listOfSelectedVideos: List<VideoFile>,
-    private val galleryConfig: GalleryConfig
+    private var listOfSelectedVideos: List<VideoFile>, private val galleryConfig: GalleryConfig?
 ) : ViewModel() {
 
-    private val ruleAction: RuleAction = RuleAction(galleryConfig.validation)
+    private fun getValidation(): Validation {
+        return Validation.ValidationBuilder()
+            .setMinPhotoSelection(Rule.MinPhotoSelection(1, "Minimum 1 photos can be selected "))
+            .setMaxPhotoSelection(Rule.MaxPhotoSelection(5, "Maximum 5 photos can be selected "))
+            .build()
+    }
+
+
+    private val ruleAction: RuleAction =
+        RuleAction(mediaValidation = galleryConfig?.validation ?: getValidation())
 
     private val reloadMediaLiveData = MutableLiveData<Unit>()
 
@@ -47,55 +57,75 @@ class BridgeViewModel(
     fun getSelectedPhotos(): List<PhotoFile> = listOfSelectedPhotos
 
     private fun shouldEnableActionButton() {
-        if(galleryConfig.shouldOnlyValidatePhoto()){
-            val status = ruleAction.shouldEnableActionButton(listOfSelectedPhotos.size)
-            actionButtonStateLiveData.postValue(status)
-        }else{
-            val status = ruleAction.shouldEnableActionButton(Pair(listOfSelectedPhotos.size, listOfSelectedVideos.size))
-            actionButtonStateLiveData.postValue(status)
+        galleryConfig?.let {
+            if (it.shouldOnlyValidatePhoto()) {
+                val status = ruleAction.shouldEnableActionButton(listOfSelectedPhotos.size)
+                actionButtonStateLiveData.postValue(status)
+            } else {
+                val status = ruleAction.shouldEnableActionButton(
+                    Pair(
+                        listOfSelectedPhotos.size, listOfSelectedVideos.size
+                    )
+                )
+                actionButtonStateLiveData.postValue(status)
+            }
         }
+
     }
 
     private fun onActionButtonClick() {
-        galleryConfig.galleryCommunicator?.actionButtonClick(listOfSelectedPhotos, listOfSelectedVideos)
+        galleryConfig?.galleryCommunicator?.actionButtonClick(
+            listOfSelectedPhotos, listOfSelectedVideos
+        )
     }
 
 
     fun shouldRecordVideo() {
-        if (galleryConfig.shouldUseVideoCamera) {
-            recordVideoLiveData.postValue(Unit)
-        } else {
-            galleryConfig.galleryCommunicator?.recordVideo()
+        galleryConfig?.let {
+            if (it.shouldUseVideoCamera) {
+                recordVideoLiveData.postValue(Unit)
+            } else {
+                it.galleryCommunicator?.recordVideo()
+            }
         }
     }
 
     fun onBackPressed() {
-        galleryConfig.galleryCommunicator?.onCloseMainScreen()
+        galleryConfig?.galleryCommunicator?.onCloseMainScreen()
     }
 
-    fun getMaxSelectionLimit() = galleryConfig.validation.getMaxPhotoSelectionRule().maxSelectionLimit
+    fun getMaxSelectionLimit(): Int =
+        galleryConfig?.validation?.getMaxPhotoSelectionRule()?.maxSelectionLimit ?: 5
 
-    fun getMaxVideoSelectionLimit() = galleryConfig.validation.getMaxVideoSelectionRule().maxSelectionLimit
+    fun getMaxVideoSelectionLimit(): Int =
+        galleryConfig?.validation?.getMaxVideoSelectionRule()?.maxSelectionLimit ?: 5
 
-    fun getMaxLimitErrorResponse() = galleryConfig.validation.getMaxPhotoSelectionRule().message
+    fun getMaxLimitErrorResponse(): String =
+        galleryConfig?.validation?.getMaxPhotoSelectionRule()?.message ?: ""
 
     fun reloadMedia() {
         reloadMediaLiveData.postValue(Unit)
     }
 
     fun shouldUseMyCamera(): Boolean {
-        galleryConfig.galleryCommunicator?.captureImage()
-        return galleryConfig.shouldUsePhotoCamera
+        galleryConfig?.galleryCommunicator?.captureImage()
+        return galleryConfig?.shouldUsePhotoCamera == true
     }
 
-    fun onFolderSelect(){
-        galleryConfig.galleryCommunicator?.onFolderSelect()
+    fun onFolderSelect() {
+        galleryConfig?.galleryCommunicator?.onFolderSelect()
     }
 
-    fun getMaxVideoLimitErrorResponse() = galleryConfig.validation.getMaxVideoSelectionRule().message
+    fun getMaxVideoLimitErrorResponse(): String =
+        galleryConfig?.validation?.getMaxVideoSelectionRule()?.message ?: ""
 
     fun complyRules() {
-        val error = ruleAction.getFirstFailingMessage(Pair(listOfSelectedPhotos.size, listOfSelectedVideos.size))
+        val error = ruleAction.getFirstFailingMessage(
+            Pair(
+                listOfSelectedPhotos.size,
+                listOfSelectedVideos.size
+            )
+        )
         if (error.isEmpty()) {
             onActionButtonClick()
             closeHostingViewLiveData.postValue(true)

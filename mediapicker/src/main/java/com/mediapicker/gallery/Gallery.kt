@@ -5,7 +5,7 @@ import com.mediapicker.gallery.domain.contract.IGalleryCommunicator
 import com.mediapicker.gallery.presentation.carousalview.CarousalActionListener
 
 object Gallery {
-    internal lateinit var galleryConfig: GalleryConfig
+    internal var galleryConfig: GalleryConfig? = null
 
     internal var pagerCommunicator: GalleryPagerCommunicator? = null
 
@@ -16,21 +16,21 @@ object Gallery {
     }
 
     fun updateCommunicator(galleryCommunicator: IGalleryCommunicator?) {
-        galleryConfig.galleryCommunicator = galleryCommunicator
+        galleryConfig?.galleryCommunicator = galleryCommunicator
     }
 
 //    internal fun getApp() = galleryConfig.applicationContext
 
-    internal fun getClientAuthority() = galleryConfig.clientAuthority
+    internal fun getClientAuthority(): String = galleryConfig?.clientAuthority ?: ""
 
-    internal fun isGalleryConfigInitialized() = this::galleryConfig.isInitialized
+    internal fun isGalleryConfigInitialized() = this::galleryConfig != null
 
     fun clean() {
         pagerCommunicator = null
         carousalActionListener = null
 
-        if (this::galleryConfig.isInitialized) {
-            galleryConfig.galleryCommunicator = null
+        if (galleryConfig != null) {
+            galleryConfig?.galleryCommunicator = null
         }
     }
 
