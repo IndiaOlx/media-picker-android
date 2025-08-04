@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import com.mediapicker.gallery.domain.entity.PhotoAlbum
 import com.mediapicker.gallery.domain.entity.PhotoFile
 import com.mediapicker.gallery.presentation.fragments.FolderViewFragment
@@ -12,7 +11,6 @@ import com.mediapicker.gallery.presentation.fragments.GalleryPhotoViewFragment
 import com.mediapicker.gallery.presentation.fragments.containsPhoto
 import com.mediapicker.gallery.presentation.fragments.removePhoto
 import com.mediapicker.gallery.presentation.utils.Constants.EXTRA_SELECTED_PHOTO
-import com.mediapicker.gallery.presentation.utils.Constants.PHOTO_SELECTION_REQUEST_CODE
 
 
 class FolderViewActivity : BaseFragmentActivity(), GalleryActionListener {
@@ -54,7 +52,7 @@ class FolderViewActivity : BaseFragmentActivity(), GalleryActionListener {
     override fun onActionClicked(shouldThrowResult: Boolean) {
         if (shouldThrowResult) {
             setResult(
-                Activity.RESULT_OK,
+                RESULT_OK,
                 Intent().apply { this.putExtra(EXTRA_SELECTED_PHOTO, currentSelectedPhotos) })
             finish()
         } else {
@@ -65,15 +63,6 @@ class FolderViewActivity : BaseFragmentActivity(), GalleryActionListener {
     override fun showCrossButton() {
         // showCloseButton()
     }
-
-//    override fun onBackPressed() {
-//        val fragments = supportFragmentManager.backStackEntryCount
-//        when {
-//            fragments == 1 -> finish()
-//            fragments > 1 -> supportFragmentManager.popBackStack()
-//            else -> super.onBackPressed()
-//        }
-//    }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {

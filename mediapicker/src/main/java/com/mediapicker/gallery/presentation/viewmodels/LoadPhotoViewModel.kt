@@ -40,8 +40,11 @@ class LoadPhotoViewModel(private val application: Application) :
         val selectionTypeGifArgs = arrayOf(mimeTypeGif)
         return CursorLoader(
             getApplication(),
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, selection,
-            selectionTypeGifArgs, MediaStore.Images.Media.DATE_ADDED + " DESC"
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null,
+            selection,
+            selectionTypeGifArgs,
+            MediaStore.Images.Media.DATE_ADDED + " DESC"
         )
     }
 
@@ -56,11 +59,14 @@ class LoadPhotoViewModel(private val application: Application) :
                 photos.add(photo)
             } while (cursor.moveToNext())
             listOfGalleryItems.clear()
-            if (needToAddCameraView())
-                listOfGalleryItems.add(CameraItem())
-            if (needToAddFolderView())
-                listOfGalleryItems.add(PhotoAlbum.dummyInstance)
             listOfGalleryItems.addAll(getFinalListOfGalleryItems(photos))
+        }
+
+        if (needToAddCameraView()) {
+            listOfGalleryItems.add(0, CameraItem())
+        }
+        if (needToAddFolderView()) {
+            listOfGalleryItems.add(1, PhotoAlbum.dummyInstance)
         }
         galleryItemsLiveData.postValue(listOfGalleryItems)
     }
@@ -93,9 +99,7 @@ class LoadPhotoViewModel(private val application: Application) :
 //    }
 
     private fun needToAddFolderView(): Boolean {
-        return (galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithFolderOnly
-                || galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithFolderAndVideo
-                || galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithoutCameraFolderOnly)
+        return (galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithFolderOnly || galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithFolderAndVideo || galleryConfig?.typeOfMediaSupported == GalleryConfig.MediaType.PhotoWithoutCameraFolderOnly)
     }
 
     private fun needToAddCameraView(): Boolean {
@@ -124,22 +128,15 @@ class LoadPhotoViewModel(private val application: Application) :
     private fun getPhoto(cursor: Cursor): PhotoFile {
         val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
         val path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
-        val mimeType =
-            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE))
+        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE))
         val col = cursor.getColumnIndex(COL_FULL_PHOTO_URL)
         var fullPhotoUrl = ""
         if (col != -1) {
             fullPhotoUrl = cursor.getString(col)
 
         }
-        return PhotoFile.Builder()
-            .imageId(id)
-            .path(path)
-            .smallPhotoUrl("")
-            .fullPhotoUrl(fullPhotoUrl)
-            .mimeType()
-            .photoBackendId(0L)
-            .build()
+        return PhotoFile.Builder().imageId(id).path(path).smallPhotoUrl("")
+            .fullPhotoUrl(fullPhotoUrl).mimeType().photoBackendId(0L).build()
     }
 
 //    override fun onCleared() {
