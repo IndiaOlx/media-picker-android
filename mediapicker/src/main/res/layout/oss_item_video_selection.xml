@@ -4,7 +4,7 @@
     android:id="@+id/gridTile"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="0.5dp">
 
@@ -18,7 +18,7 @@
         android:id="@+id/white_overlay"
         android:layout_width="match_parent"
         android:layout_height="104dp"
-        android:background="#B3FFFFFF"
+        android:background="@color/oss_selected_photo_overlay"
         android:visibility="gone" />
 
     <TextView
@@ -34,7 +34,7 @@
         android:paddingRight="@dimen/module_tiny"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:text="Cover"
+        android:text="@string/cover"
         android:textSize="@dimen/label_font_size"
 
         android:visibility="gone"
@@ -45,7 +45,7 @@
         android:id="@+id/imgSelectedText"
         android:layout_width="@dimen/module_base_9"
         android:layout_height="@dimen/module_base_9"
-        android:layout_gravity="top|right|end"
+        android:layout_gravity="top|end"
         android:layout_margin="@dimen/module_small"
         android:background="@drawable/oss_circle_photo_indicator"
         android:gravity="center"
@@ -57,7 +57,7 @@
         android:id="@+id/durationLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right|end"
+        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/module_small"
         android:background="@color/background_video_duration"
         android:paddingRight="@dimen/module_small"

@@ -6,7 +6,7 @@ import com.mediapicker.gallery.R
 
 data class CarousalConfig(
     val showCarousal: Boolean = false,
-    @DrawableRes val imageId: Int = R.drawable.ic_no_images_black_48dp,
+    @DrawableRes val imageId: Int = R.drawable.pic_default_photo,
     val addImage: Boolean = false,
-    @StringRes val previewText: Int = R.string.preview
+    @StringRes val previewText: Int = R.string.gallery_view_default_photo_banner_text
 )

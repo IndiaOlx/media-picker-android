@@ -4,7 +4,7 @@
     android:id="@+id/gridTile"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="0.5dp">
 
@@ -41,7 +41,7 @@
             android:paddingLeft="@dimen/module_tiny"
             android:paddingEnd="@dimen/module_tiny"
             android:paddingRight="@dimen/module_tiny"
-            android:text="Cover"
+            android:text="@string/cover"
             android:textSize="@dimen/caption_font_size"
             android:visibility="gone"
             tools:text="Hello"

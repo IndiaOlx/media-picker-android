@@ -10,7 +10,7 @@
         android:id="@+id/blackBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000" />
+        android:background="@color/black" />
 
     <ImageView
         android:id="@+id/image_placeholder"
@@ -44,6 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:src="@drawable/pic_default_photo"
             android:visibility="visible"/>
 
         <TextView
@@ -55,9 +56,10 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:gravity="center_horizontal"
-            android:textColor="#002f34"
+            android:text="@string/gallery_view_default_photo_banner_text"
+            android:textColor="@color/primary"
             android:textSize="14sp"
-            tools:visibility="gone"/>
+            tools:visibility="visible" />
 
     </LinearLayout>
 
@@ -72,10 +74,10 @@
         android:id="@+id/imageLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="40dp"
+        android:textColor="@color/white"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
         android:visibility="visible" />
 
     <LinearLayout
@@ -92,8 +94,8 @@
         android:id="@+id/leftArrow"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_gravity="left|center_vertical"
-        android:layout_marginLeft="4dp"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginStart="4dp"
         android:padding="2dp"
         android:visibility="visible"
         app:srcCompat="@drawable/oss_ic_arrowleft" />
@@ -102,8 +104,8 @@
         android:id="@+id/rightArrow"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_gravity="right|center_vertical"
-        android:layout_marginRight="4dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="4dp"
         android:padding="2dp"
         android:visibility="visible"
         app:srcCompat="@drawable/oss_ic_arrowright" />
@@ -112,12 +114,11 @@
         android:id="@+id/photoCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
         android:padding="2dp"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="10sp"
         tools:ignore="SmallSp"
         tools:text="10 / 10" />

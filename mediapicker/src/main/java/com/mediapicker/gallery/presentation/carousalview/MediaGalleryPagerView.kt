@@ -9,7 +9,6 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -144,39 +143,39 @@ open class MediaGalleryPagerView @JvmOverloads constructor(
     }
 
     private fun setNavigationIconVisibilityBasedOnPosition(position: Int) {
-        if (mediaList.size == 0) {
-            binding.leftArrow.visibility = View.GONE
-            binding.rightArrow.visibility = View.GONE
+        if (mediaList.isEmpty()) {
+            binding.leftArrow.visibility = GONE
+            binding.rightArrow.visibility = GONE
             return
         }
         if (position == 0) {
-            binding.leftArrow.visibility = View.GONE
+            binding.leftArrow.visibility = GONE
         } else {
-            binding.leftArrow.visibility = View.VISIBLE
+            binding.leftArrow.visibility = VISIBLE
         }
 
         if (position == mediaList.size - 1) {
-            binding.rightArrow.visibility = View.GONE
+            binding.rightArrow.visibility = GONE
         } else {
-            binding.rightArrow.visibility = View.VISIBLE
+            binding.rightArrow.visibility = VISIBLE
         }
     }
 
     private fun setPhotoCount(currentImage: Int, size: Int) {
         if (binding.photoCount != null) {
             if (size > 1) {
-                binding.photoCount.visibility = View.VISIBLE
+                binding.photoCount.visibility = VISIBLE
                 binding.photoCount.text =
                     String.format(Locale.ENGLISH, " %1\$d / %2\$d ", currentImage, size)
             } else {
-                binding.photoCount.visibility = View.GONE
+                binding.photoCount.visibility = GONE
             }
         }
     }
 
     private fun resolvePlaceHolder() {
         if (isGallery) {
-            binding.imagePlaceholder.visibility = View.GONE
+            binding.imagePlaceholder.visibility = GONE
         }
     }
 
@@ -264,7 +263,7 @@ open class MediaGalleryPagerView @JvmOverloads constructor(
 
         private fun loadImage(media: MediaGalleryEntity) {
             val imageUrl: String = media.path!!
-            binding.imageProgress.visibility = View.VISIBLE
+            binding.imageProgress.visibility = VISIBLE
             img?.setOnClickListener(onItemClickListener)
             if (media.isLocalImage) {
                 img?.tag = media
@@ -344,27 +343,27 @@ open class MediaGalleryPagerView @JvmOverloads constructor(
 
     private fun setViewBasedOnMediaList() {
         navigationArrowVisibility()
-        if (mediaList.size > 0) {
-            binding.defaultContainer.visibility = View.GONE
-            binding.blackBackground.visibility = View.VISIBLE
-            binding.galleryPagerGradient.visibility = View.GONE
-            binding.itemImages.visibility = View.VISIBLE
+        if (mediaList.isNotEmpty()) {
+            binding.defaultContainer.visibility = GONE
+            binding.blackBackground.visibility = VISIBLE
+            binding.galleryPagerGradient.visibility = GONE
+            binding.itemImages.visibility = VISIBLE
         } else {
-            binding.defaultContainer.visibility = View.VISIBLE
-            binding.blackBackground.visibility = View.GONE
-            binding.galleryPagerGradient.visibility = View.GONE
-            binding.imageProgress.visibility = View.GONE
-            binding.itemImages.visibility = View.GONE
+            binding.defaultContainer.visibility = VISIBLE
+            binding.blackBackground.visibility = GONE
+            binding.galleryPagerGradient.visibility = GONE
+            binding.imageProgress.visibility = GONE
+            binding.itemImages.visibility = GONE
         }
     }
 
     private fun navigationArrowVisibility() {
         if (mediaList.size > 1) {
-            binding.leftArrow.visibility = View.VISIBLE
-            binding.rightArrow.visibility = View.VISIBLE
+            binding.leftArrow.visibility = VISIBLE
+            binding.rightArrow.visibility = VISIBLE
         } else {
-            binding.leftArrow.visibility = View.GONE
-            binding.rightArrow.visibility = View.GONE
+            binding.leftArrow.visibility = GONE
+            binding.rightArrow.visibility = GONE
         }
     }
 }
