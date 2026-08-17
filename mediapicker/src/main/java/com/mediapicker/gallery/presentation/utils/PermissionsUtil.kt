@@ -71,20 +71,12 @@ object PermissionsUtil {
                     val grantedMap = permissions.associateWith { permission ->
                         grantedList.contains(permission)
                     }
-                    // Permify invokes this synchronously. A pending permission result is
-                    // replayed during Fragment.performResume, i.e. while FragmentManager is
-                    // still executing transactions, so callers that swap a ViewPager adapter
-                    // would crash with "FragmentManager is already executing transactions".
-                    // Deferring to the next main-loop message lets the transaction finish first.
-                    fragment.view?.post {
-                        if (!fragment.isAdded) return@post
-                        handlePermissionsResult(
-                            fragment.requireActivity(),
-                            grantedMap,
-                            onAllPermissionsGranted,
-                            onPermissionDenied
-                        )
-                    }
+                    handlePermissionsResult(
+                        fragment.requireActivity(),
+                        grantedMap,
+                        onAllPermissionsGranted,
+                        onPermissionDenied
+                    )
                 }
             }
         )
