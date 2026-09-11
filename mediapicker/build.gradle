@@ -1,17 +1,20 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'maven-publish'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.parcelize'
+    id 'maven-publish'
+}
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 35
+        targetSdkVersion 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -21,11 +24,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = JavaVersion.VERSION_21.toString()
     }
 
     buildFeatures {
@@ -33,9 +36,6 @@ android {
         buildConfig = true
     }
 
-    defaultConfig {
-        vectorDrawables.useSupportLibrary = true
-    }
     namespace 'com.mediapicker.gallery'
 
     testOptions {
@@ -43,6 +43,16 @@ android {
             includeAndroidResources = true
         }
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
