@@ -1,37 +1,30 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
-    ext.kotlin_version = '2.2.0'
-    ext.kotlinKspVersion = '2.2.0-2.0.2'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.11.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.ksp) apply false
 }
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
-        repositories {
-            maven { url "https://www.jitpack.io" }
+        maven { url "https://www.jitpack.io" }
+    }
+
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion libs.versions.kotlin.get()
+            }
         }
     }
 }
 
-buildscript {
-    repositories {
-        maven { url "https://www.jitpack.io" }
-    }
-}
-
 tasks.register('clean', Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }

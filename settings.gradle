@@ -1,3 +1,26 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    // Required so the Java 21 toolchain can download a JDK when none is installed locally.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven { url "https://www.jitpack.io" }
+    }
+}
+
 rootProject.name='Sample'
 include ':app'
 include ':mediapicker'
