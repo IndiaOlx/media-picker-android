@@ -1,17 +1,21 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'maven-publish'
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
+    id 'maven-publish'
+}
 
 android {
-    compileSdk 35
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 35
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -21,11 +25,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = JavaVersion.VERSION_21.toString()
     }
 
     buildFeatures {
@@ -33,9 +37,6 @@ android {
         buildConfig = true
     }
 
-    defaultConfig {
-        vectorDrawables.useSupportLibrary = true
-    }
     namespace 'com.mediapicker.gallery'
 
     testOptions {
@@ -43,26 +44,36 @@ android {
             includeAndroidResources = true
         }
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+kotlin {
+    jvmToolchain(JavaVersion.VERSION_21.toString().toInteger())
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation "androidx.core:core-ktx:1.13.1"
-    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.14.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation "io.coil-kt.coil3:coil:3.0.2"
-    implementation "io.coil-kt.coil3:coil-gif:3.0.2"
-    implementation "io.coil-kt.coil3:coil-svg:3.0.2"
-    implementation "io.coil-kt.coil3:coil-network-okhttp:3.0.2"
-    implementation 'com.github.olx-india:Permify:1.0.4'
+    implementation libs.kotlin.stdlib
+    implementation libs.androidx.constraintlayout
+    implementation libs.google.material
+    implementation libs.androidx.lifecycle.extensions
+    implementation libs.androidx.core.ktx
+    implementation libs.chrisbanes.photoview
+    testImplementation libs.junit
+    testImplementation libs.robolectric
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    implementation libs.androidx.appcompat
+    implementation libs.coil
+    implementation libs.coil.gif
+    implementation libs.coil.svg
+    implementation libs.coil.network.okhttp
+    implementation libs.permify
 }
 
 afterEvaluate {
@@ -73,7 +84,7 @@ afterEvaluate {
 
                 groupId = 'com.github.IndiaOlx'
                 artifactId = 'media-picker-android'
-                version = '2.0.26'
+                version = '2.0.36'
 
                 pom {
                     name = 'Media Picker Android'
