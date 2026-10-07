@@ -1,16 +1,17 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.parcelize'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
     id 'maven-publish'
 }
 
 android {
-    compileSdk 36
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 36
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -57,22 +58,22 @@ kotlin {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation "androidx.core:core-ktx:1.13.1"
-    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.14.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation "io.coil-kt.coil3:coil:3.0.2"
-    implementation "io.coil-kt.coil3:coil-gif:3.0.2"
-    implementation "io.coil-kt.coil3:coil-svg:3.0.2"
-    implementation "io.coil-kt.coil3:coil-network-okhttp:3.0.2"
-    implementation 'com.github.olx-india:Permify:1.1.0'
+    implementation libs.kotlin.stdlib
+    implementation libs.androidx.constraintlayout
+    implementation libs.google.material
+    implementation libs.androidx.lifecycle.extensions
+    implementation libs.androidx.core.ktx
+    implementation libs.chrisbanes.photoview
+    testImplementation libs.junit
+    testImplementation libs.robolectric
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    implementation libs.androidx.appcompat
+    implementation libs.coil
+    implementation libs.coil.gif
+    implementation libs.coil.svg
+    implementation libs.coil.network.okhttp
+    implementation libs.permify
 }
 
 afterEvaluate {
