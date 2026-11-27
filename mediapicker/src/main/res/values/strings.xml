@@ -28,4 +28,5 @@
     <string name="photos_partially_granted">You have granted some parts of the photos</string>
     <string name="allow">Allow</string>
     <string name="photos_denied">You haven\'t granted any photos</string>
+    <string name="main_photo">Main Photo</string>
 </resources>

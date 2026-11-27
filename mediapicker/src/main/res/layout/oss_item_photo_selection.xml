@@ -37,12 +37,12 @@
             android:background="@drawable/oss_media_cover_photo_indicator_background"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:padding="4dp"
-            android:text="Cover"
+            android:padding="2dp"
+            android:text="@string/main_photo"
             android:textColor="@color/Neutral_White"
             android:textSize="10sp"
             android:visibility="gone"
-            tools:text="Hello"
+            tools:text="Main Photo"
             tools:visibility="visible" />
 
         <com.google.android.material.textview.MaterialTextView
