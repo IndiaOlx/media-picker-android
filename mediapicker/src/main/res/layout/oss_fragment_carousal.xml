@@ -119,17 +119,29 @@
         </androidx.viewpager.widget.ViewPager>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/action_button"
-        style="@style/OSS_CustomButton"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/module_medium"
-        android:animateLayoutChanges="true"
-        android:enabled="true"
-        android:text="@string/oss_posting_next"
-        app:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ossRecycleView" />
+        android:layout_height="72dp"
+        android:background="@color/Neutral_White"
+        android:elevation="6dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_button"
+            style="@style/OSS_CustomButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/oss_carousal_action_button_selector"
+            android:elevation="0dp"
+            android:enabled="true"
+            android:fontFamily="sans-serif-medium"
+            android:padding="0dp"
+            android:paddingHorizontal="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            android:text="@string/oss_posting_next" />
+    </FrameLayout>
 
 </LinearLayout>

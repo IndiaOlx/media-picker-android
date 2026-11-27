@@ -123,6 +123,10 @@ class SelectPhotoImageAdapter(
                 photoViewHolder.photoFile = listOfGalleryItems[position] as PhotoFile
                 photoViewHolder.binding.imgCoverText.visibility = View.GONE
                 if (listCurrentPhotos.contains(photoViewHolder.photoFile)) {
+                    photoViewHolder.binding.gridTile.foreground = ContextCompat.getDrawable(
+                        photoViewHolder.itemView.context,
+                        R.drawable.oss_circle_photo_outer_indicator
+                    )
                     photoViewHolder.binding.whiteOverlay.visibility = View.VISIBLE
                     photoViewHolder.binding.imgSelectedText.text =
                         getPosition(photoViewHolder.photoFile).toString()
@@ -135,6 +139,7 @@ class SelectPhotoImageAdapter(
                     photoViewHolder.itemView.scaleY = AnimationHelper.SELECTED_SCALE
                     setSelectedPhoto(photoViewHolder)
                 } else {
+                    photoViewHolder.binding.gridTile.foreground = null
                     photoViewHolder.binding.imgSelectedText.text = ""
                     photoViewHolder.binding.imgSelectedText.background =
                         ContextCompat.getDrawable(

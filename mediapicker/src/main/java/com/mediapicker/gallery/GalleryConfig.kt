@@ -40,7 +40,7 @@ class GalleryConfig(
     ) {
         private var shouldUsePhotoCamera: Boolean = false
         private var shouldUseVideoCamera: Boolean = false
-        private var textAllCaps: Boolean = true
+        private var textAllCaps: Boolean = false
         private var needToShowCover: PhotoTag = PhotoTag()
         private var showPreviewCarousal: CarousalConfig = CarousalConfig()
 
